@@ -5,10 +5,11 @@ import { Calendar, Download, Share2 } from 'lucide-react'
 export default async function PreviewPage({
     params,
 }: {
-    params: { id: string }
+    params: Promise<{ id: string }>
 }) {
+    const { id } = await params
     const video = await prisma.video.findUnique({
-        where: { id: params.id },
+        where: { id },
     })
 
     if (!video) {
@@ -47,7 +48,7 @@ export default async function PreviewPage({
 
                     {video.plan === 'paid' ? (
                         <Link
-                            href="/reservations/new"
+                            href={`/reservations/new?videoId=${id}`}
                             className="
                   px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold
                   flex items-center justify-center gap-2 transition-all

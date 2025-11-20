@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Calendar, Clock, CreditCard, Loader2 } from 'lucide-react'
 
-export default function NewReservationPage() {
+function ReservationForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const videoId = searchParams.get('videoId')
@@ -119,5 +119,13 @@ export default function NewReservationPage() {
                 </form>
             </div>
         </div>
+    )
+}
+
+export default function NewReservationPage() {
+    return (
+        <Suspense fallback={<div className="p-8 text-center">読み込み中...</div>}>
+            <ReservationForm />
+        </Suspense>
     )
 }
