@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  lineId    String   @unique
+  name      String?
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  videos    Video[]
+  reservations Reservation[]
+}
+
+model Template {
+  id        String   @id @default(cuid())
+  category  Int      // 1, 2, or 3
+  title     String
+  videoUrl  String
+  thumbnail String
+  createdAt DateTime @default(now())
+}
+
+model Video {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  templateIds String   // JSON string of selected template IDs
+  status      String   // "processing", "completed", "failed"
+  downloadUrl String?
+  plan        String   @default("free") // "free" or "paid"
+  createdAt   DateTime @default(now())
+  reservation Reservation?
+}
+
+model Reservation {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  videoId       String   @unique
+  video         Video    @relation(fields: [videoId], references: [id])
+  scheduledTime DateTime
+  status        String   // "pending", "confirmed", "cancelled"
+  createdAt     DateTime @default(now())
+  payment       Payment?
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  reservationId String   @unique
+  reservation   Reservation @relation(fields: [reservationId], references: [id])
+  amount        Int
+  status        String   // "pending", "completed", "failed"
+  method        String   // "credit_card", "qr_pay"
+  createdAt     DateTime @default(now())
+}
